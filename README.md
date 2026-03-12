@@ -1,0 +1,1 @@
+# JuceMCP-for-agents
