@@ -4,22 +4,20 @@ import glob
 import xml.etree.ElementTree as ET
 from mcp.server.fastmcp import FastMCP
 
-# --- CONFIGURATION ---
+# CONFIGURATION
 # Adjust these paths to match your system
 JUCE_PATH = "E:/JUCE"
 MODULES_PATH = os.path.join(JUCE_PATH, "modules")
 EXAMPLES_PATH = os.path.join(JUCE_PATH, "examples")
 JUCE_XML_PATH = os.path.join(JUCE_PATH, "xml")
 
-# --- GLOBAL STATE ---
+# GLOBAL STATE
 current_project_path = None
-class_map = {}  # Maps "AudioBuffer" -> "classjuce_1_1AudioBuffer.xml"
+class_map = {}  # Maps "AudioBuffer" to "classjuce_1_1AudioBuffer.xml"
 
 mcp = FastMCP("juce-architect-ultimate")
 
-# ==========================================
 #  INITIALIZATION (XML INDEXING)
-# ==========================================
 def load_xml_index():
     """Parses the main Doxygen index to map ClassNames to XML files."""
     global class_map
@@ -39,7 +37,7 @@ def load_xml_index():
             if kind in ["class", "struct"]:
                 name = compound.find("name").text
                 refid = compound.get("refid")
-                # Handle names like "juce::AudioBuffer" -> "AudioBuffer"
+                # Handle names like "juce::AudioBuffer" to "AudioBuffer"
                 simple_name = name.split("::")[-1]
                 class_map[simple_name.lower()] = f"{refid}.xml"
                 count += 1
@@ -50,9 +48,7 @@ def load_xml_index():
 # Run once on startup
 load_xml_index()
 
-# ==========================================
-#  PART 1: PROJECT CONTEXT (Your Local Work)
-# ==========================================
+#  PROJECT CONTEXT
 
 @mcp.tool()
 def set_active_project(path_to_project_root: str) -> str:
@@ -121,9 +117,7 @@ def read_project_file(partial_name: str) -> str:
     except Exception as e:
         return f"Error reading file: {e}"
 
-# ==========================================
-#  PART 2: DOCUMENTATION (XML Powered)
-# ==========================================
+#  DOCUMENTATION (XML Powered)
 
 @mcp.resource("juce://docs/{class_name}")
 def get_structured_docs(class_name: str) -> str:
@@ -190,9 +184,7 @@ def search_classes(query: str) -> str:
     if not matches: return "No matches found in XML index."
     return "\n".join(matches[:25])
 
-# ==========================================
-#  PART 3: EXAMPLES & RAW ACCESS (Tutorials)
-# ==========================================
+#  EXAMPLES & RAW ACCESS (Tutorials)
 
 @mcp.tool()
 def search_examples(topic: str) -> str:
